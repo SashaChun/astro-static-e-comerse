@@ -1,0 +1,115 @@
+---
+import MainLayout from "../../../layouts/MainLayout.astro";
+
+async function gql(query, variables = {}) {
+    const GRAPHQL_URL = "https://api.escuelajs.co/graphql";
+
+    const res = await fetch(GRAPHQL_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, variables }),
+    });
+
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0].message);
+    return json.data;
+}
+
+export async function getStaticPaths() {
+    const GRAPHQL_URL = "https://api.escuelajs.co/graphql";
+
+    const res = await fetch(GRAPHQL_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            query: `query { products { id } }`,
+        }),
+    });
+
+    const json = await res.json();
+
+    return json.data.products.map((product) => ({
+        params: { id: String(product.id) },
+    }));
+}
+
+const { id } = Astro.params;
+
+const data = await gql(
+    `
+  query ($id: ID!) {
+    product(id: $id) {
+      id
+      title
+      description
+      price
+      images
+    }
+  }
+  `,
+    { id }
+);
+
+const product = data.product;
+---
+
+<MainLayout>
+    <main class="container mx-auto px-6 py-12">
+
+        <!-- Breadcrumbs -->
+        <nav class="text-sm text-gray-500 mb-10">
+            <a href="/" class="hover:text-purple-600">Головна</a>
+            <span class="mx-2">/</span>
+            <a href="/products/page/1" class="hover:text-purple-600">Каталог</a>
+            <span class="mx-2">/</span>
+            <span class="text-gray-700 font-medium">{product.title}</span>
+        </nav>
+
+        <!-- Product -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
+
+            <!-- Image -->
+            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl flex items-center justify-center p-8">
+                <img
+                        src={product.images[0]}
+                        alt={product.title}
+                        class="max-h-[420px] object-contain hover:scale-105 transition"
+                />
+            </div>
+
+            <!-- Info -->
+            <div class="flex flex-col justify-between">
+                <div class="space-y-5">
+                    <h1 class="text-4xl font-bold">{product.title}</h1>
+
+                    <p class="text-gray-600 text-lg">
+                        {product.description}
+                    </p>
+
+                    <div class="flex items-center gap-4">
+            <span class="text-4xl font-bold text-purple-600">
+              ${product.price}
+            </span>
+                        <span class="line-through text-gray-400">
+              ${(product.price * 1.2).toFixed(2)}
+            </span>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex gap-4">
+                    <button class="flex-1 bg-purple-600 text-white py-4 rounded-xl hover:scale-105 transition">
+                        🛒 Додати в кошик
+                    </button>
+                    <button class="w-14 bg-gray-200 rounded-xl">🤍</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-14">
+            <a href="/products/page/1" class="text-purple-600 font-semibold">
+                ← Повернутися до каталогу
+            </a>
+        </div>
+
+    </main>
+</MainLayout>

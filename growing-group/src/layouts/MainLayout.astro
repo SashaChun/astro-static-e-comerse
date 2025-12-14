@@ -1,0 +1,51 @@
+---
+import "../styles/global.css"
+
+const pathname = Astro.url.pathname;
+const isActive = (path : string) => pathname === path;
+
+---
+
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <title>Сучасний Магазин</title>
+</head>
+<body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen">
+<header class="bg-white/80 backdrop-blur-lg shadow-lg sticky top-0 z-50 border-b border-purple-100">
+    <nav class="container mx-auto px-6 py-4">
+        <div class="flex items-center justify-between">
+            <div class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                SHOP
+            </div>
+            <ul class="hidden md:flex space-x-8">
+
+                <a href="/" class={`relative ${isActive("/") ? "text-purple-600" : "text-gray-700"}`}>
+                    Головна
+                </a>
+                <a href="/products/page/1" class={`relative ${isActive("/") ? "text-purple-600" : "text-gray-700"}`}>
+                    Товари
+                 </a>
+                <a href="/about" class={`relative ${isActive("/about") ? "text-purple-600" : "text-gray-700"}`}>
+                    Про нас
+                </a>
+
+                <a href="/contacts" class={`relative ${isActive("/contacts") ? "text-purple-600" : "text-gray-700"}`}>
+                    Контакти
+                </a>
+
+            </ul>
+            <div class="relative cursor-pointer group">
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
+                    <span class="text-xl">🛒</span>
+                </div>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-bold animate-pulse">3</span>
+            </div>
+        </div>
+    </nav>
+</header>
+<slot/>
+</body>
+</html>

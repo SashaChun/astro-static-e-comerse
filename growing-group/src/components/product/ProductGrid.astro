@@ -1,0 +1,29 @@
+---
+import ProductCart from "./ProductCart.astro";
+import { baseUrl } from "../../../api.ts";
+
+async function getProducts() {
+    const response = await fetch(`${baseUrl}/products`);
+
+    if (!response.ok) {
+        throw new Error("Failed to fetch products");
+    }
+
+    return await response.json();
+}
+
+ const products = await getProducts();
+
+ ---
+
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
+    {products.map(product => (
+            <ProductCart
+                    id={product.id}
+                    title={product.title}
+                    price={product.price}
+                    image={product.images[0]}
+                    description={product.description}
+            />
+    ))}
+</div>

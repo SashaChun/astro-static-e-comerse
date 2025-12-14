@@ -1,0 +1,55 @@
+---
+const { title, price, image, description , id} = Astro.props;
+---
+
+<a href={`/products/${id}`}>
+<div  class="group cursor-pointer">
+    <div class="bg-white   shadow-lg overflow-hidden  transition-all duration-300 transform hover:-translate-y-2">
+
+         <div class="relative mt-5 h-64  flex items-center justify-center">
+            <img
+                    src={image}
+                    alt={title}
+                    loading="lazy"
+                    class="max-w-full rounded-2xl max-h-full object-contain   transition-transform duration-500"
+            />
+
+            <div class="absolute inset-0 bg-black/0  transition-colors duration-300"></div>
+
+            <button class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm p-2 rounded-full   transition-colors">
+                <span class="text-xl">🤍</span>
+            </button>
+        </div>
+
+         <div class="p-5 space-y-3">
+            <div class="flex items-center gap-1 text-yellow-500">
+                ⭐⭐⭐⭐⭐
+            </div>
+
+            <h3
+                    class="text-lg font-bold text-gray-800 group-hover:text-purple-600 transition-colors truncate"
+                    title={title}
+            >
+                {title}
+            </h3>
+
+
+             <p class="text-gray-600 text-sm line-clamp-3">
+                {description}
+            </p>
+
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-2xl font-bold text-purple-600">{price}</span>
+                    <span class="text-gray-400 line-through ml-2 text-sm">{price}</span>
+                </div>
+
+                <button class="bg-purple-600 text-white p-3 rounded-full hover:bg-pink-600 transition-colors duration-300 hover:scale-110 transform">
+                    🛒
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+</a>

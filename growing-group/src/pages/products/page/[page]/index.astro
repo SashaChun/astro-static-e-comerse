@@ -1,0 +1,140 @@
+---
+import MainLayout from "../../../../layouts/MainLayout.astro";
+import ProductGrid from "../../../../components/product/ProductGrid.astro";
+
+
+export async function getStaticPaths() {
+    const GRAPHQL_URL = "https://api.escuelajs.co/graphql";
+    const PER_PAGE = 12;
+
+     const res = await fetch(GRAPHQL_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            query: `query { products { id } }`,
+        }),
+    });
+
+    const json = await res.json();
+    const total = json.data.products.length;
+    const totalPages = Math.ceil(total / PER_PAGE);
+
+    console.log(`📦 Total products: ${total}, Total pages: ${totalPages}`);
+     const paths = [];
+
+    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
+        const offset = (pageNum - 1) * PER_PAGE;
+
+        console.log(`🔄 Loading page ${pageNum}, offset: ${offset}`);
+
+        const pageRes = await fetch(GRAPHQL_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                query: `
+                    query ($offset: Int!, $limit: Int!) {
+                        products(offset: $offset, limit: $limit) {
+                            id
+                            title
+                            price
+                            images
+                        }
+                    }
+                `,
+                variables: { offset, limit: PER_PAGE },
+            }),
+        });
+
+        const pageJson = await pageRes.json();
+        const pageProducts = pageJson.data.products;
+
+        console.log(`✅ Page ${pageNum}: loaded ${pageProducts.length} products (IDs: ${pageProducts[0]?.id}-${pageProducts[pageProducts.length-1]?.id})`);
+
+        paths.push({
+            params: { page: String(pageNum) },
+            props: {
+                totalPages,
+                total,
+                products: pageProducts
+            },
+        });
+    }
+
+    return paths;
+}
+
+const page = Number(Astro.params.page);
+const { totalPages, total, products } = Astro.props;
+
+console.log(`🎨 Rendering page ${page} with ${products.length} products`);
+
+// Генеруємо номери сторінок для пагінації
+const pageNumbers = [];
+for (let i = 1; i <= totalPages; i++) {
+    const showPage = i === 1 ||
+        i === totalPages ||
+        Math.abs(i - page) <= 1;
+
+    if (showPage) {
+        pageNumbers.push({ num: i, show: true });
+    } else if (i === 2 && page > 3) {
+        pageNumbers.push({ num: i, show: false, dots: true });
+    } else if (i === totalPages - 1 && page < totalPages - 2) {
+        pageNumbers.push({ num: i, show: false, dots: true });
+    }
+}
+---
+
+<MainLayout>
+    <main class="container mx-auto px-6 py-12">
+
+        <h1 class="text-5xl font-bold text-center mb-8 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            Каталог товарів
+        </h1>
+
+        <p class="text-center text-gray-600 mb-12">
+            Показано {products.length} товарів з {total} (Сторінка {page} з {totalPages})
+        </p>
+
+        <ProductGrid products={products} />
+
+         <div class="mt-16 flex justify-center items-center gap-3">
+            {page > 1 && (
+                    <a
+                            href={`/products/page/${page - 1}`}
+                            class="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                    >
+                        ← Попередня
+                    </a>
+            )}
+
+            <div class="flex gap-2">
+                {pageNumbers.map((item) => (
+                    item.dots ? (
+                            <span class="px-3 py-2 text-gray-400">...</span>
+                    ) : item.show ? (
+                            <a
+                                    href={`/products/page/${item.num}`}
+                                    class={item.num === page
+                                        ? "px-4 py-2 bg-purple-600 text-white rounded-lg font-semibold"
+                                        : "px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                                    }
+                            >
+                                {item.num}
+                            </a>
+                    ) : null
+                ))}
+            </div>
+
+            {page < totalPages && (
+                    <a
+                            href={`/products/page/${page + 1}`}
+                            class="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                    >
+                        Наступна →
+                    </a>
+            )}
+        </div>
+
+    </main>
+</MainLayout>
