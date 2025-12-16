@@ -3,7 +3,7 @@ import "../styles/global.css"
 
 const pathname = Astro.url.pathname;
 
-const getNavClass = (path: string) => {
+const getNavClass = (path: string): string => {
   const isActiveLink = path === "/" ? pathname === path : pathname.startsWith(path);
   return `relative ${isActiveLink ? "text-purple-600" : "text-gray-700"}`;
 };
@@ -26,23 +26,20 @@ const getNavClass = (path: string) => {
             <div class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 SHOP
             </div>
-            <ul class="hidden md:flex space-x-8">
-
-                <a href="/" class={getNavClass("/")} lang="uk">
+            <nav class="hidden md:flex space-x-8">
+                <a href="/" class={getNavClass("/")}>
                     Головна
                 </a>
-                <a href="/products/page/1" class={getNavClass("/products")} lang="uk">
+                <a href="/products/page/1" class={getNavClass("/products")}>
                     Товари
                  </a>
-                <a href="/about" class={getNavClass("/about")} lang="uk">
+                <a href="/about" class={getNavClass("/about")}>
                     Про нас
                 </a>
-
-                <a href="/contacts" class={getNavClass("/contacts")} lang="uk">
+                <a href="/contacts" class={getNavClass("/contacts")}>
                     Контакти
                 </a>
-
-            </ul>
+            </nav>
             <div class="relative cursor-pointer group">
                 <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-300">
                     <span class="text-xl">🛒</span>
