@@ -26,17 +26,17 @@ const getNavClass = (path: string): string => {
             <div class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                 SHOP
             </div>
-            <nav class="hidden md:flex space-x-8">
-                <a href="/" class={getNavClass("/")}>
+            <nav class="hidden md:flex space-x-8" role="navigation">
+                <a href="/" class={getNavClass("/")} lang="uk">
                     Головна
                 </a>
-                <a href="/products/page/1" class={getNavClass("/products")}>
+                <a href="/products/page/1" class={getNavClass("/products")} lang="uk">
                     Товари
                  </a>
-                <a href="/about" class={getNavClass("/about")}>
+                <a href="/about" class={getNavClass("/about")} lang="uk">
                     Про нас
                 </a>
-                <a href="/contacts" class={getNavClass("/contacts")}>
+                <a href="/contacts" class={getNavClass("/contacts")} lang="uk">
                     Контакти
                 </a>
             </nav>
