@@ -10,7 +10,7 @@ const isActive = (path : string) => pathname === path;
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <meta name="description" content="Опис магазину" />
+    <meta name="description" content="Сучасний інтернет-магазин з якісними товарами та швидкою доставкою по Україні" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.0/dist/tailwind.min.css" rel="stylesheet">
     <title>Сучасний Магазин</title>
@@ -24,17 +24,17 @@ const isActive = (path : string) => pathname === path;
             </div>
             <ul class="hidden md:flex space-x-8">
 
-                <a href="/" class={`relative ${isActive("/") ? "text-purple-600" : "text-gray-700"}`} lang="uk">
+                <a href="/" class={`relative ${isActive("/") ? "text-purple-600" : "text-gray-700"}`}>
                     Головна
                 </a>
-                <a href="/products/page/1" class={`relative ${isActive("/") ? "text-purple-600" : "text-gray-700"}`} lang="uk">
+                <a href="/products/page/1" class={`relative ${isActive("/products") || pathname.startsWith("/products") ? "text-purple-600" : "text-gray-700"}`}>
                     Товари
                  </a>
-                <a href="/about" class={`relative ${isActive("/about") ? "text-purple-600" : "text-gray-700"}`} lang="uk">
+                <a href="/about" class={`relative ${isActive("/about") ? "text-purple-600" : "text-gray-700"}`}>
                     Про нас
                 </a>
 
-                <a href="/contacts" class={`relative ${isActive("/contacts") ? "text-purple-600" : "text-gray-700"}`} lang="uk">
+                <a href="/contacts" class={`relative ${isActive("/contacts") ? "text-purple-600" : "text-gray-700"}`}>
                     Контакти
                 </a>
 
