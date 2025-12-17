@@ -2,73 +2,50 @@
 import MainLayout from "../../../../layouts/MainLayout.astro";
 import ProductGrid from "../../../../components/product/ProductGrid.astro";
 
-
-export async function getStaticPaths() {
+async function gql(query, variables = {}) {
     const GRAPHQL_URL = "https://api.escuelajs.co/graphql";
-    const PER_PAGE = 12;
 
-     const res = await fetch(GRAPHQL_URL, {
+    const res = await fetch(GRAPHQL_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            query: `query { products { id } }`,
-        }),
+        body: JSON.stringify({ query, variables }),
     });
 
     const json = await res.json();
-    const total = json.data.products.length;
-    const totalPages = Math.ceil(total / PER_PAGE);
-
-    console.log(`📦 Total products: ${total}, Total pages: ${totalPages}`);
-     const paths = [];
-
-    for (let pageNum = 1; pageNum <= totalPages; pageNum++) {
-        const offset = (pageNum - 1) * PER_PAGE;
-
-        console.log(`🔄 Loading page ${pageNum}, offset: ${offset}`);
-
-        const pageRes = await fetch(GRAPHQL_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                query: `
-                    query ($offset: Int!, $limit: Int!) {
-                        products(offset: $offset, limit: $limit) {
-                            id
-                            title
-                            price
-                            images
-                        }
-                    }
-                `,
-                variables: { offset, limit: PER_PAGE },
-            }),
-        });
-
-        const pageJson = await pageRes.json();
-        const pageProducts = pageJson.data.products;
-
-        console.log(`✅ Page ${pageNum}: loaded ${pageProducts.length} products (IDs: ${pageProducts[0]?.id}-${pageProducts[pageProducts.length-1]?.id})`);
-
-        paths.push({
-            params: { page: String(pageNum) },
-            props: {
-                totalPages,
-                total,
-                products: pageProducts
-            },
-        });
-    }
-
-    return paths;
+    if (json.errors) throw new Error(json.errors[0].message);
+    return json.data;
 }
 
-const page = Number(Astro.params.page);
-const { totalPages, total, products } = Astro.props;
+const page = Number(Astro.params.page) || 1;
+const PER_PAGE = 12;
+const offset = (page - 1) * PER_PAGE;
 
-console.log(`🎨 Rendering page ${page} with ${products.length} products`);
+// Fetch total count
+const totalData = await gql(`query { products { id } }`);
+const total = totalData.products.length;
+const totalPages = Math.ceil(total / PER_PAGE);
 
-// Генеруємо номери сторінок для пагінації
+// Fetch products for current page
+const productsData = await gql(
+    `
+    query ($offset: Int!, $limit: Int!) {
+        products(offset: $offset, limit: $limit) {
+            id
+            title
+            price
+            images
+            description
+        }
+    }
+    `,
+    { offset, limit: PER_PAGE }
+);
+
+const products = productsData.products;
+
+console.log(`🎨 SSR: Rendering page ${page} with ${products.length} products`);
+
+// Generate page numbers for pagination
 const pageNumbers = [];
 for (let i = 1; i <= totalPages; i++) {
     const showPage = i === 1 ||
@@ -98,7 +75,7 @@ for (let i = 1; i <= totalPages; i++) {
 
         <ProductGrid products={products} />
 
-         <div class="mt-16 flex justify-center items-center gap-3">
+        <div class="mt-16 flex justify-center items-center gap-3">
             {page > 1 && (
                     <a
                             href={`/products/page/${page - 1}`}

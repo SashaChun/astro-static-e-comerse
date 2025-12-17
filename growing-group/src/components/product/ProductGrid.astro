@@ -2,27 +2,33 @@
 import ProductCart from "./productCart.astro";
 import { baseUrl } from "../../../api.ts";
 
-async function getProducts() {
-    const response = await fetch(`${baseUrl}/products`);
+const { products } = Astro.props;
 
-    if (!response.ok) {
-        throw new Error("Failed to fetch products");
+// If no products prop is provided, fetch them dynamically
+let finalProducts = products;
+
+if (!finalProducts) {
+    async function getProducts() {
+        const response = await fetch(`${baseUrl}/products`);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch products");
+        }
+
+        return await response.json();
     }
 
-    return await response.json();
+    finalProducts = await getProducts();
 }
-
- const products = await getProducts();
-
- ---
+---
 
 <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-8">
-    {products.map(product => (
+    {finalProducts.map(product => (
             <ProductCart
                     id={product.id}
                     title={product.title}
                     price={product.price}
-                    image={product.images[0]}
+                    image={product.images?.[0] || product.image}
                     description={product.description}
             />
     ))}
